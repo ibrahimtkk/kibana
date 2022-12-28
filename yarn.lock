@@ -3741,6 +3741,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/ml-is-populated-object@link:x-pack/packages/ml/is_populated_object":
+  version "0.0.0"
+  uid ""
+
 "@kbn/ml-nested-property@link:x-pack/packages/ml/nested_property":
   version "0.0.0"
   uid ""
@@ -3750,10 +3754,6 @@
   uid ""
 
 "@kbn/ml-url-state@link:x-pack/packages/ml/url_state":
-  version "0.0.0"
-  uid ""
-
-"@kbn/ml-is-populated-object@link:x-pack/packages/ml/is_populated_object":
   version "0.0.0"
   uid ""
 
@@ -12968,10 +12968,10 @@ elastic-apm-node@^3.38.0:
     traverse "^0.6.6"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@^3.41.0:
-  version "3.41.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.41.0.tgz#ff0b5ecf6d126a2eb312ecc936bd55bc3f1e3ce6"
-  integrity sha512-cX745ryAwQCFEhkYttLrdjQDO0vCHspCbKg6bCguvBURZUHkLnZcP5z5m3R20dnGfTDXGg2q6nMi65iIVMCYFA==
+elastic-apm-node@^3.41.1:
+  version "3.41.1"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.41.1.tgz#e0829d69d5e8a6062ef567d0a8db0ec0e3736ea8"
+  integrity sha512-bLCVIyAgQC+ZfY5fd/UaAId+8dh3vusaxZF2A0YtHBAwx1YGpIA3dqOt5zc1UuYmbjCdsEAiUjaUEAHOWdjTzA==
   dependencies:
     "@elastic/ecs-pino-format" "^1.2.0"
     "@opentelemetry/api" "^1.1.0"
