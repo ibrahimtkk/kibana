@@ -5,10 +5,11 @@
  * 2.0.
  */
 
+import { TITLE_TEST_ID } from '../../public/components/layout/test_ids';
+
 import {
   ADD_INTEGRATIONS_BUTTON,
   BREADCRUMBS,
-  DEFAULT_LAYOUT_TITLE,
   EMPTY_STATE,
   ENDING_BREADCRUMB,
   FIELD_BROWSER,
@@ -162,7 +163,7 @@ describe('Indicators', () => {
 
       cy.get(ENDING_BREADCRUMB).should('have.text', 'Intelligence');
 
-      cy.get(DEFAULT_LAYOUT_TITLE).should('have.text', 'Indicators');
+      cy.get(`[data-test-subj="${TITLE_TEST_ID}"]`).should('have.text', 'Indicators');
 
       cy.get(INDICATORS_TABLE).should('exist');
 

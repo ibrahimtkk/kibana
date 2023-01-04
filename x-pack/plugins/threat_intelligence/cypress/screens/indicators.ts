@@ -13,10 +13,6 @@ export const LEADING_BREADCRUMB = '[data-test-subj="breadcrumb first"]';
 
 export const ENDING_BREADCRUMB = '[data-test-subj="breadcrumb last"]';
 
-/* Titles */
-
-export const DEFAULT_LAYOUT_TITLE = `[data-test-subj="tiDefaultPageLayoutTitle"]`;
-
 /* Indicators Table */
 
 export const INDICATORS_TABLE = `[data-test-subj="tiIndicatorsTable"]`;
