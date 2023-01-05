@@ -96,6 +96,11 @@ export const ENDPOINT_ARTIFACT_LISTS = deepFreeze({
     name: 'Endpoint Security Blocklists List',
     description: 'Endpoint Security Blocklists List',
   },
+  threatIntelligence: {
+    id: 'endpoint_threat_intelligence',
+    name: 'Endpoint Security Threat Intelligence List',
+    description: 'Endpoint Security Threat Intelligence List',
+  },
 });
 
 /**

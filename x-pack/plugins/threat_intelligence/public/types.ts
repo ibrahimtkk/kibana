@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { ComponentType, ReactElement, ReactNode, VFC } from 'react';
+import { ComponentType, NamedExoticComponent, ReactElement, ReactNode, VFC } from 'react';
 import { CoreStart } from '@kbn/core/public';
 import { DataPublicPluginStart } from '@kbn/data-plugin/public';
 import {
@@ -57,6 +57,7 @@ export type Services = {
 
 export interface LicenseAware {
   isEnterprise(): boolean;
+  isPlatinumPlus(): boolean;
 }
 
 export type BrowserFields = Readonly<Record<string, Partial<BrowserField>>>;
@@ -124,4 +125,10 @@ export interface SecuritySolutionPluginContext {
    * Deregister stale query
    */
   deregisterQuery: (query: { id: string }) => void;
+
+  blockList: {
+    exceptionListApiClient: unknown;
+    getFlyoutComponent: () => NamedExoticComponent<unknown>;
+    getFormEffectedPolicy: () => NamedExoticComponent<unknown>;
+  };
 }

@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import type { NamedExoticComponent } from 'react';
 import React, { memo } from 'react';
 import { TrackApplicationView } from '@kbn/usage-collection-plugin/public';
 import type { SecuritySolutionPluginContext } from '@kbn/threat-intelligence-plugin/public';
@@ -12,6 +13,8 @@ import { THREAT_INTELLIGENCE_BASE_PATH } from '@kbn/threat-intelligence-plugin/p
 import type { SourcererDataView } from '@kbn/threat-intelligence-plugin/public/types';
 import type { Store } from 'redux';
 import { useSelector } from 'react-redux';
+import { ThreatIntelligenceExceptionsApiClient } from './exceptions_api_client';
+import { EffectedPolicySelect } from '../management/components/effected_policy_select';
 import { useInvestigateInTimeline } from './use_investigate_in_timeline';
 import { getStore, inputsSelectors } from '../common/store';
 import { useKibana } from '../common/lib/kibana';
@@ -26,9 +29,10 @@ import { SiemSearchBar } from '../common/components/search_bar';
 import { useGlobalTime } from '../common/containers/use_global_time';
 import { deleteOneQuery, setQuery } from '../common/store/inputs/actions';
 import { InputsModelId } from '../common/store/inputs/constants';
+import { ArtifactFlyout } from '../management/components/artifact_list_page/components/artifact_flyout';
 
 const ThreatIntelligence = memo(() => {
-  const { threatIntelligence } = useKibana().services;
+  const { threatIntelligence, http } = useKibana().services;
   const ThreatIntelligencePlugin = threatIntelligence.getComponent();
 
   const sourcererDataView = useSourcererDataView();
@@ -43,6 +47,12 @@ const ThreatIntelligence = memo(() => {
     licenseService,
     sourcererDataView: sourcererDataView as unknown as SourcererDataView,
     getUseInvestigateInTimeline: useInvestigateInTimeline,
+
+    blockList: {
+      exceptionListApiClient: ThreatIntelligenceExceptionsApiClient.getInstance(http),
+      getFlyoutComponent: () => ArtifactFlyout as unknown as NamedExoticComponent<unknown>,
+      getFormEffectedPolicy: () => EffectedPolicySelect as unknown as NamedExoticComponent<unknown>,
+    },
 
     useQuery: () => useSelector(inputsSelectors.globalQuerySelector()),
     useFilters: () => useSelector(inputsSelectors.globalFiltersQuerySelector()),
