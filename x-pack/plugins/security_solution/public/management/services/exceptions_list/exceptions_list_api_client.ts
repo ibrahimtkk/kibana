@@ -241,6 +241,8 @@ export class ExceptionsListApiClient {
       transformedException = this.writeTransform(exception);
     }
 
+    debugger;
+
     const exc = {
       comments: [],
       description: 'test',
@@ -252,7 +254,7 @@ export class ExceptionsListApiClient {
           operator: 'included',
         },
       ],
-      list_id: 'endpoint_threat_intelligence',
+      list_id: 'endpoint_blocklists',
       name: 'manage',
       namespace_type: 'agnostic',
       tags: ['policy:all'],

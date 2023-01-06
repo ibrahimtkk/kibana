@@ -13,7 +13,7 @@ import { THREAT_INTELLIGENCE_BASE_PATH } from '@kbn/threat-intelligence-plugin/p
 import type { SourcererDataView } from '@kbn/threat-intelligence-plugin/public/types';
 import type { Store } from 'redux';
 import { useSelector } from 'react-redux';
-import { ThreatIntelligenceExceptionsApiClient } from './exceptions_api_client';
+import { BlocklistsApiClient } from '../management/pages/blocklist/services';
 import { EffectedPolicySelect } from '../management/components/effected_policy_select';
 import { useInvestigateInTimeline } from './use_investigate_in_timeline';
 import { getStore, inputsSelectors } from '../common/store';
@@ -49,7 +49,7 @@ const ThreatIntelligence = memo(() => {
     getUseInvestigateInTimeline: useInvestigateInTimeline,
 
     blockList: {
-      exceptionListApiClient: ThreatIntelligenceExceptionsApiClient.getInstance(http),
+      exceptionListApiClient: BlocklistsApiClient.getInstance(http),
       getFlyoutComponent: () => ArtifactFlyout as unknown as NamedExoticComponent<unknown>,
       getFormEffectedPolicy: () => EffectedPolicySelect as unknown as NamedExoticComponent<unknown>,
     },

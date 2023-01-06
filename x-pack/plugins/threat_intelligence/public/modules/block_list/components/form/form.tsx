@@ -17,6 +17,8 @@ import {
   EuiTitle,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiSuperSelect,
+  EuiSuperSelectOption,
 } from '@elastic/eui';
 import type { BlocklistConditionEntryField } from '@kbn/securitysolution-utils';
 import { isOneOfOperator } from '@kbn/securitysolution-list-utils';
@@ -26,13 +28,15 @@ import { uniq } from 'lodash';
 import { CreateExceptionListItemSchema } from '@kbn/securitysolution-io-ts-list-types';
 import { ArtifactFormComponentOnChangeCallbackProps } from '@kbn/security-solution-plugin/public/management/components/artifact_list_page';
 import { i18n } from '@kbn/i18n';
+import { SELECT_OS_LABEL } from '@kbn/security-solution-plugin/public/management/pages/blocklist/translations';
+import { OperatingSystem } from '@kbn/securitysolution-utils';
+import { OS_TITLES } from '@kbn/security-solution-plugin/public/management/common/translations';
+import { PackagePolicy, UpdatePackagePolicy } from '@kbn/fleet-plugin/common';
 import { useSecurityContext } from '../../../../hooks';
-import type { EffectedPolicySelection } from '../../../../components/effected_policy_select';
-
-import type { PolicyData } from '../../../../../../common/endpoint/types';
 
 export const BLOCK_LIST_NAME_TEST_ID = 'tiBlockListName';
 export const BLOCK_LIST_DESCRIPTION_TEST_ID = 'tiBlockListDescription';
+export const BLOCK_LIST_SELECT_OS_TEST_ID = 'tiBlockListSelectOs';
 
 export const DETAILS_HEADER = i18n.translate('xpack.threatIntelligence.blocklist.details.header', {
   defaultMessage: 'Details',
@@ -156,7 +160,7 @@ export interface BlockListFormProps {
   /**
    *
    */
-  policies: PolicyData[];
+  policies: PackagePolicy[] & UpdatePackagePolicy[];
   /**
    *
    */
@@ -193,17 +197,29 @@ export const BlockListForm = memo<BlockListFormProps>(
     const isPlatinumPlus = licenseService.isPlatinumPlus();
 
     const isGlobal = useMemo(() => isArtifactGlobal(item as ExceptionListItemSchema), [item]);
-    const [selectedPolicies, setSelectedPolicies] = useState<PolicyData[]>([]);
+    const [selectedPolicies, setSelectedPolicies] = useState<unknown[]>([]);
 
     // select policies if editing
     useEffect(() => {
       if (hasFormChanged) return;
       const policyIds = item.tags?.map((tag) => tag.split(':')[1]) ?? [];
       if (!policyIds.length) return;
-      const policiesData = policies.filter((policy) => policyIds.includes(policy.id));
+      const policiesData = policies.filter((policy: any) => policyIds.includes(policy.id));
 
       setSelectedPolicies(policiesData);
     }, [hasFormChanged, item.tags, policies]);
+
+    const blocklistEntry = useMemo((): BlocklistEntry => {
+      if (!item.entries.length) {
+        return {
+          field: 'file.hash.*',
+          operator: 'included',
+          type: 'match_any',
+          value: [],
+        };
+      }
+      return item.entries[0] as BlocklistEntry;
+    }, [item.entries]);
 
     const validateValues = useCallback((nextItem: BlockListFormProps['item']) => {
       const { field = 'file.hash.*', value: values = [] } = (nextItem.entries[0] ??
@@ -236,6 +252,23 @@ export const BlockListForm = memo<BlockListFormProps>(
       warningsRef.current = { ...warningsRef.current, value: newValueWarnings };
       errorsRef.current = { name: newNameErrors, value: newValueErrors };
     }, []);
+
+    const osOptions: Array<EuiSuperSelectOption<OperatingSystem>> = useMemo(
+      () =>
+        [OperatingSystem.LINUX, OperatingSystem.MAC, OperatingSystem.WINDOWS].map((os) => ({
+          value: os,
+          inputDisplay: OS_TITLES[os],
+        })),
+      []
+    );
+
+    const selectedOs = useMemo((): OperatingSystem => {
+      if (!item?.os_types?.length) {
+        return OperatingSystem.WINDOWS;
+      }
+
+      return item.os_types[0] as OperatingSystem;
+    }, [item?.os_types]);
 
     const handleOnNameBlur = useCallback(() => {
       validateValues(item);
@@ -276,11 +309,37 @@ export const BlockListForm = memo<BlockListFormProps>(
       [onChange, item, validateValues]
     );
 
+    const handleOnOsChange = useCallback(
+      (os: OperatingSystem) => {
+        const nextItem = {
+          ...item,
+          os_types: [os],
+          entries: [
+            {
+              ...blocklistEntry,
+              field:
+                os !== OperatingSystem.WINDOWS && blocklistEntry.field === 'file.Ext.code_signature'
+                  ? 'file.hash.*'
+                  : blocklistEntry.field,
+            },
+          ],
+        };
+
+        validateValues(nextItem);
+        onChange({
+          isValid: isValid(errorsRef.current),
+          item: nextItem,
+        });
+        setHasFormChanged(true);
+      },
+      [validateValues, blocklistEntry, onChange, item]
+    );
+
     const handleOnPolicyChange = useCallback(
-      (change: EffectedPolicySelection) => {
+      (change: any) => {
         const tags = change.isGlobal
           ? [GLOBAL_ARTIFACT_TAG]
-          : change.selected.map((policy) => `${BY_POLICY_ARTIFACT_TAG_PREFIX}${policy.id}`);
+          : change.selected.map((policy: any) => `${BY_POLICY_ARTIFACT_TAG_PREFIX}${policy.id}`);
 
         const nextItem = { ...item, tags };
 
@@ -303,10 +362,13 @@ export const BlockListForm = memo<BlockListFormProps>(
         <EuiTitle size="xs">
           <h3>{DETAILS_HEADER}</h3>
         </EuiTitle>
+
         <EuiSpacer size="xs" />
+
         <EuiText size="s">
           <p>{DETAILS_HEADER_DESCRIPTION}</p>
         </EuiText>
+
         <EuiSpacer size="m" />
 
         <EuiFormRow
@@ -326,6 +388,7 @@ export const BlockListForm = memo<BlockListFormProps>(
             fullWidth
           />
         </EuiFormRow>
+
         <EuiFormRow label={DESCRIPTION_LABEL} fullWidth>
           <EuiTextArea
             name="description"
@@ -337,10 +400,24 @@ export const BlockListForm = memo<BlockListFormProps>(
             maxLength={256}
           />
         </EuiFormRow>
+
         <EuiHorizontalRule />
+
         <EuiTitle size="xs">
           <h3>{CONDITIONS_HEADER}</h3>
         </EuiTitle>
+        <EuiSpacer size="m" />
+
+        <EuiFormRow label={SELECT_OS_LABEL} fullWidth>
+          <EuiSuperSelect
+            name="os"
+            options={osOptions}
+            valueOfSelected={selectedOs}
+            onChange={handleOnOsChange}
+            data-test-subj={BLOCK_LIST_SELECT_OS_TEST_ID}
+            fullWidth
+          />
+        </EuiFormRow>
         <EuiSpacer size="m" />
 
         <EuiFormRow fullWidth>
@@ -358,6 +435,7 @@ export const BlockListForm = memo<BlockListFormProps>(
             <EuiFlexItem grow={2} />
           </EuiFlexGroup>
         </EuiFormRow>
+
         <EuiFormRow label={VALUE_LABEL} fullWidth>
           <EuiFieldText name="value" value={indicatorFileHash} readOnly />
         </EuiFormRow>

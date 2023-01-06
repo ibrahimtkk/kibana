@@ -48,7 +48,7 @@ export const AddToBlockListContextMenu: VFC<AddToBlockListProps> = ({
       data-test-subj={dataTestSub}
     >
       <FormattedMessage
-        defaultMessage="Add to BlockList"
+        defaultMessage="Add blocklist entry"
         id="xpack.threatIntelligence.addToBlockList"
       />
     </EuiContextMenuItem>
